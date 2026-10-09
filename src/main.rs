@@ -30,10 +30,7 @@ fn main() {
                     active_player = 'X';
                     false
                 }
-                _ => {
-                    println!("bot or player?");
-                    continue;
-                }
+                _ => continue,
             };
             reset = false;
         }
