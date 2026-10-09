@@ -59,7 +59,7 @@ fn main() {
         }
         cells[input_field] = active_player;
 
-        if !multiplayer && cells.contains(&' ') {
+        if !multiplayer && cells.contains(&' ') && !has_won(&cells, 'X') {
             cells[bot_move(&cells)] = 'O';
         }
 
@@ -152,35 +152,50 @@ fn has_won(cells: &[char], current_player: char) -> bool {
 }
 
 fn bot_move(cells: &[char]) -> usize {
-    //TODO: fix unseen blocks (because of iteration, x _ x is not detected)
     let mut possible_moves = Vec::new();
 
-    let mut in_row = 0;
     for row in 0..3 {
+        let mut in_row = 0;
         for col in 0..3 {
             let i = col + 3 * row;
-            match cells[i] {
-                'X' => in_row += 1,
-                ' ' if in_row == 2 => return i,
-                ' ' if in_row == 1 => possible_moves.push(i),
-                _ => in_row = 0,
+            if cells[i] == 'X' {
+                in_row += 1;
+            } else if cells[i] == 'O' {
+                in_row = -3;
             }
         }
-        in_row = 0;
+        for col in 0..3 {
+            let i = col + 3 * row;
+            if cells[i] == ' ' {
+                if in_row == 2 {
+                    return i;
+                } else if in_row == 1 {
+                    possible_moves.push(i);
+                }
+            }
+        }
     }
 
-    let mut in_col = 0;
     for col in 0..3 {
+        let mut in_col = 0;
         for row in 0..3 {
             let i = col + 3 * row;
-            match cells[i] {
-                'X' => in_col += 1,
-                ' ' if in_col == 2 => return i,
-                ' ' if in_col == 1 => possible_moves.push(i),
-                _ => in_col = 0,
+            if cells[i] == 'X' {
+                in_col += 1;
+            } else if cells[i] == 'O' {
+                in_col = -3;
             }
         }
-        in_col = 0;
+        for row in 0..3 {
+            let i = col + 3 * row;
+            if cells[i] == ' ' {
+                if in_col == 2 {
+                    return i;
+                } else if in_col == 1 {
+                    possible_moves.push(i);
+                }
+            }
+        }
     }
 
     let diags = [[0, 4, 8], [2, 4, 6]];
@@ -188,16 +203,25 @@ fn bot_move(cells: &[char]) -> usize {
     for diag in diags {
         let mut x = 0;
         for i in diag {
-            if x > 1 && cells[i] == ' ' {
-                return i;
-            }
-            if x == 1 && cells[i] == ' ' {
-                possible_moves.push(i);
-            }
             if cells[i] == 'X' {
                 x += 1
+            } else if cells[i] == 'O' {
+                x = -3;
             }
         }
+        for i in diag {
+            if cells[i] == ' ' {
+                if x == 2 {
+                    return i;
+                } else if x == 1 {
+                    possible_moves.push(i);
+                }
+            }
+        }
+    }
+
+    if possible_moves.is_empty() {
+        return cells.iter().position(|&n| n == ' ').unwrap();
     }
 
     *possible_moves
