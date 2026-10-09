@@ -8,16 +8,15 @@ fn main() {
 
     let mut cells = [' '; 9];
 
-    println!("| | | |\n| | | |\n| | | |");
-
+    
     let mut active_player = 'X';
     let mut buf = String::new();
     let mut reset = true;
     let mut multiplayer = false;
-
+    
     'game_loop: loop {
         buf.clear();
-
+        
         if reset {
             println!("do you wish to play against another player or a bot? (p/b)");
             let Ok(_) = io::stdin().read_line(&mut buf) else {
@@ -32,6 +31,7 @@ fn main() {
                 }
                 _ => continue,
             };
+            println!("\n| | | |\n| | | |\n| | | |\n");
             reset = false;
         }
 
@@ -70,6 +70,7 @@ fn main() {
             }
             println!("|");
         }
+        println!();
 
         if has_won(&cells, active_player)
             || !cells.contains(&' ')
@@ -95,7 +96,6 @@ fn main() {
                 match buf.to_lowercase().trim() {
                     "y" | "yes" => {
                         cells.fill(' ');
-                        println!("\n| | | |\n| | | |\n| | | |");
                         active_player = if active_player == 'X' { 'O' } else { 'X' };
                         reset = true;
                         continue 'game_loop;
